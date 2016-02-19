@@ -111,7 +111,7 @@ module GFF3Parser
                         --scaffold <project_id> \n\n "
   end
 
-  def create_gene_hash
+  def GFF3Parser.create_gene_hash
 
     h = {}
     type_array = [ "gene" ]
@@ -124,7 +124,7 @@ module GFF3Parser
   end # create_gene_hash
 
 
-  def create_transcript_hash
+  def GFF3Parser.create_transcript_hash
   
     h = {}
     type_array = %w( CDS exon intron start_codon stop_codon mRNA transcription_end_site transcription_start_site 3-utr 5-utr)
@@ -136,23 +136,24 @@ module GFF3Parser
 
   end # create_transcript_hash
 
-#  def sort_features( features_array )
-#  
-#    if features_array == []
-#    elsif features_array[0][6] == "+"
-#      features_array.sort!{|x, y| x[3].to_i <=> y[3].to_i }
-#    elsif features_array[0][6] == "-"
-#      features_array.sort!{|x, y| y[3].to_i <=> x[3].to_i }
-#    else
-#      p "something wrong #{features_array[0]} 2"
-#      p "something wrong #{features_array[0][6]} 3"
-#      exit
-#    end
-#    return features_array
-#
-#  end # sort_features( features_array )
 
-  def parse_gff3( line, ftype, h )
+  def GFF3Parser.sort_features( features_array )
+  
+    if features_array == []
+    elsif features_array[0][6] == "+"
+      features_array.sort!{|x, y| x[3].to_i <=> y[3].to_i }
+    elsif features_array[0][6] == "-"
+      features_array.sort!{|x, y| y[3].to_i <=> x[3].to_i }
+    else
+      p "something wrong #{features_array[0]} 2"
+      p "something wrong #{features_array[0][6]} 3"
+      exit
+    end
+    return features_array
+
+  end # sort_features( features_array )
+
+  def GFF3Parser.parse_gff3( line, ftype, h )
 
     dataline = []
     seqid  = "" ;  
@@ -167,8 +168,8 @@ module GFF3Parser
     tid = "";
     type_array = %w( CDS exon intron start_codon stop_codon transcription_end_site transcription_start_site 5-utr 3-utr )
   
-    a = line.chomp.split("\s")
-    seqid  = a[0]
+    a = line.chomp.split("\t")
+    seqid  =  a[0]
     source = a[1]
     ftype  = ftype
     sstart = a[3]
@@ -176,7 +177,7 @@ module GFF3Parser
     score  = a[5]
     strand = a[6]
     phase  = a[7]
-    attributes = a[8..-1].join(" ")
+    attributes = a[8]
     dataline = [seqid, source, ftype, sstart, send, score, strand, phase ]
   
     if ftype == "gene" and attributes =~ /ID/
@@ -187,7 +188,7 @@ module GFF3Parser
         STDERR.puts attributes
       end
   
-      h[gid] = create_gene_hash if h[gid] == nil
+      h[gid] = GFF3Parser.create_gene_hash if h[gid] == nil
       h[gid][ ftype ] = dataline + ["ID=#{gid}\;Name=#{gid}"]
   
     elsif ftype == "mRNA" and attributes =~ /Parent/
@@ -203,8 +204,8 @@ module GFF3Parser
         STDERR.puts attributes
       end
 
-      h[gid]      = create_gene_hash       if h[gid] == nil
-      h[gid][tid] = create_transcript_hash if h[gid][tid] == nil
+      h[gid] = GFF3Parser.create_gene_hash if h[gid] == nil
+      h[gid][tid] = GFF3Parser.create_transcript_hash if h[gid][tid] == nil
       h[gid][tid][ ftype ] << dataline + ["ID=#{tid}\;Parent=#{gid}"]
   
     elsif ftype == "exon" and attributes =~ /Parent/
@@ -213,8 +214,8 @@ module GFF3Parser
       if    tids =~ /\,/
         tids.split(",").each do |tid|
           gid = tid.slice(/=?(\S+)-mRNA/, 1) 
-          h[gid]      = create_gene_hash       if h[gid] == nil
-          h[gid][tid] = create_transcript_hash if h[gid][tid] == nil
+          h[gid] = GFF3Parser.create_gene_hash if h[gid] == nil
+          h[gid][tid] = GFF3Parser.create_transcript_hash if h[gid][tid] == nil
           h[gid][tid][ ftype ] << dataline + ["ID=#{tid}\;Parent=#{gid}"]
         end
       else
@@ -229,8 +230,8 @@ module GFF3Parser
           gid = tid.slice(/=?([^\.]+)-tr/, 1)  + "gn"
         end
 
-        h[gid]      = create_gene_hash       if h[gid] == nil
-        h[gid][tid] = create_transcript_hash if h[gid][tid] == nil
+        h[gid] = GFF3Parser.create_gene_hash if h[gid] == nil
+        h[gid][tid] = GFF3Parser.create_transcript_hash if h[gid][tid] == nil
         h[gid][tid][ ftype ] << dataline + ["ID=#{tid}\;Parent=#{gid}"]
       end
 
@@ -247,8 +248,8 @@ module GFF3Parser
         gid = tid
       end
 
-      h[gid]      = create_gene_hash       if h[gid] == nil
-      h[gid][tid] = create_transcript_hash if h[gid][tid] == nil
+      h[gid] = GFF3Parser.create_gene_hash if h[gid] == nil
+      h[gid][tid] = GFF3Parser.create_transcript_hash if h[gid][tid] == nil
       h[gid][tid][ ftype ] << dataline + ["ID=#{tid}\;Parent=#{gid}"]
 
     elsif type_array.include?( ftype ) and attributes =~ /Parent/
@@ -264,12 +265,12 @@ module GFF3Parser
         gid = tid
       end
 
-      h[gid]      = create_gene_hash       if h[gid] == nil
-      h[gid][tid] = create_transcript_hash if h[gid][tid] == nil
+      h[gid] = GFF3Parser.create_gene_hash if h[gid] == nil
+      h[gid][tid] = GFF3Parser.create_transcript_hash if h[gid][tid] == nil
       h[gid][tid][ ftype ] << dataline + ["ID=#{tid}\;Parent=#{gid}"]
   
     else
-      p "something bad : #{ftype} : #{attributes} : #{line} : #{a}4 "
+      p "something bad #{line} 4"
       exit
   
     end
@@ -278,7 +279,7 @@ module GFF3Parser
   
   end # parse_gff3( line, ftype, h )
 
-  def create_scaffold_hash( input_scaffold )
+  def GFF3Parser.create_scaffold_hash( input_scaffold )
     
     scaffold_h = {}
     ff = FlatFile.new(FastaFormat, open(input_scaffold) )
@@ -290,7 +291,7 @@ module GFF3Parser
 
   end
 
-  def create_gff_hash( input_gff )
+  def GFF3Parser.create_gff_hash( input_gff )
 
     scaffold_id = ""
     transcript_id = ""
@@ -307,29 +308,29 @@ module GFF3Parser
       next if x == "\n"
 
       if ftype == "gene"  
-        h = parse_gff3( x, "gene", h )
+        h = GFF3Parser.parse_gff3( x, "gene", h )
       elsif ftype == "transcript" or ftype ==  "mRNA"
-        h = parse_gff3( x, "mRNA", h )
+        h = GFF3Parser.parse_gff3( x, "mRNA", h )
       elsif ftype == "exon"  
-        h = parse_gff3( x, "exon", h )
+        h = GFF3Parser.parse_gff3( x, "exon", h )
       elsif ftype == "CDS"  
-        h = parse_gff3( x, "CDS", h )
+        h = GFF3Parser.parse_gff3( x, "CDS", h )
       elsif ftype == "start_codon"
-        h = parse_gff3( x, "start_codon", h )
+        h = GFF3Parser.parse_gff3( x, "start_codon", h )
       elsif ftype == "stop_codon"
-        h = parse_gff3( x, "stop_codon", h )
+        h = GFF3Parser.parse_gff3( x, "stop_codon", h )
       elsif ftype == "3-utr"
-        h = parse_gff3( x, "3-utr", h )
+        h = GFF3Parser.parse_gff3( x, "3-utr", h )
       elsif ftype == "three_prime_UTR"
-        h = parse_gff3( x, "3-utr", h )
+        h = GFF3Parser.parse_gff3( x, "3-utr", h )
       elsif ftype == "5-utr"
-        h = parse_gff3( x, "5-utr", h )
+        h = GFF3Parser.parse_gff3( x, "5-utr", h )
       elsif ftype == "five_prime_UTR"
-        h = parse_gff3( x, "5-utr", h )
+        h = GFF3Parser.parse_gff3( x, "5-utr", h )
       elsif ftype == "transcription_start_site"
-        h = parse_gff3( x, "transcription_start_site", h )
+        h = GFF3Parser.parse_gff3( x, "transcription_start_site", h )
       elsif ftype == "transcription_end_site"
-        h = parse_gff3( x, "transcription_end_site", h )
+        h = GFF3Parser.parse_gff3( x, "transcription_end_site", h )
       elsif ftype == "intron"
       else
         p x
@@ -340,54 +341,52 @@ module GFF3Parser
     return h
   end
 
-  def parse_exon_sites( exon_values )
+  def GFF3Parser.parse_exon_sites( exon_values )
     exon_sites = []
     exon_values.each do |e|
       exon_sites << e[3..4]
     end
-    exon_sites.sort!{|ex, ey| ex[0].to_i <=> ey[0].to_i}
     return exon_sites
   end
 
-  def parse_cds_sites( cds_values )
+  def GFF3Parser.parse_cds_sites( cds_values )
     cds_sites = []
     cds_values.each do |e|
       cds_sites << e[3..4]
     end
-    cds_sites.sort!{|ex, ey| ex[0].to_i <=> ey[0].to_i}
     return cds_sites
   end
 
-  def main_parser2( in_gff )
+  def GFF3Parser.main_parser2( in_gff )
 
-    gffh = create_gff_hash( in_gff )
+    gffh = GFF3Parser.create_gff_hash( in_gff )
     return gffh
 
   end
 
-#  def create_scagffh( gffh )
-#
-#    scagffh = {}
-#    gffh.each_key do |gid|
-#      scaid = gffh[gid]["gene"][0]
-#      scagffh[ scaid ] = [] if scagffh[ scaid ] == nil
-#      scagffh[ scaid ] << gid
-#    end
-#    return scagffh
-#
-#  end
+  def GFF3Parser.create_scagffh( gffh )
 
-  def main_parser3( in_scaffold )
+    scagffh = {}
+    gffh.each_key do |gid|
+      scaid = gffh[gid]["gene"][0]
+      scagffh[ scaid ] = [] if scagffh[ scaid ] == nil
+      scagffh[ scaid ] << gid
+    end
+    return scagffh
 
-    scah = create_scaffold_hash( in_scaffold )
+  end
+
+  def GFF3Parser.main_parser3( in_scaffold )
+
+    scah = GFF3Parser.create_scaffold_hash( in_scaffold )
     return scah
 
   end
 
-  def main_parser4( in_gff, in_scaffold )
+  def GFF3Parser.main_parser4( in_gff, in_scaffold )
 
-    gffh = create_gff_hash( in_gff )
-    scah = create_scaffold_hash( in_scaffold )
+    gffh = GFF3Parser.create_gff_hash( in_gff )
+    scah = GFF3Parser.create_scaffold_hash( in_scaffold )
 
     gffh.each_key do |gid|
       gffh[gid].each_key do |tid|
@@ -401,8 +400,8 @@ module GFF3Parser
         scaffold_id = gffh[gid][tid]["mRNA"][0][0]
         direction   = gffh[gid][tid]["mRNA"][0][6]
 
-        exons = parse_exon_sites( exon_values ) 
-        cdss  = parse_cds_sites( cds_values ) 
+        exons = GFF3Parser.parse_exon_sites( exon_values ) 
+        cdss  = GFF3Parser.parse_cds_sites( cds_values ) 
 
         cdnas.get_exon_sites( exons )
         cdnas.get_cds_sites( cdss )
@@ -416,7 +415,7 @@ module GFF3Parser
 
   end  #  main_parser2
 
-  def main_parser( in_gff, in_scaffold, out_cdna, out_prot, out_cdsnucl )
+  def GFF3Parser.main_parser( in_gff, in_scaffold, out_cdna, out_prot, out_cdsnucl )
 
     gffh = GFF3Parser.create_gff_hash( in_gff )
     scah = GFF3Parser.create_scaffold_hash( in_scaffold )
