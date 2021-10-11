@@ -574,24 +574,24 @@ module GFF3Parser
     end  # open( input_gff )
   end
 
-#  def parse_exon_sites( exon_values )
-#    exon_sites = []
-#    exon_values.each do |e|
-#      exon_sites << e[3..4]
-#    end
-#    exon_sites.sort!{|ex, ey| ex[0].to_i <=> ey[0].to_i}
-#    return exon_sites
-#  end
-#
-#  def parse_cds_sites( cds_values )
-#
-#    if    cds_values[0].strand == "+"
-#      cds_values.sort!{|ex, ey| ex.start <=> ey.start }
-#    elsif cds_values[0].strand == "-"
-#      cds_values.sort!{|ex, ey| ey.end   <=> ex.end   }
-#    end
-#    return cds_values
-#  end
+  def parse_exon_sites( exon_values )
+    exon_sites = []
+    exon_values.each do |e|
+      exon_sites << e[3..4]
+    end
+    exon_sites.sort!{|ex, ey| ex[0].to_i <=> ey[0].to_i}
+    return exon_sites
+  end
+
+  def parse_cds_sites( cds_values )
+
+    if    cds_values[0].strand == "+"
+      cds_values.sort!{|ex, ey| ex.start <=> ey.start }
+    elsif cds_values[0].strand == "-"
+      cds_values.sort!{|ex, ey| ey.end   <=> ex.end   }
+    end
+    return cds_values
+  end
 
   def main_parser2( in_gff, h)
 
@@ -607,35 +607,35 @@ module GFF3Parser
 
   end
 
-#  def main_parser( in_gff, in_scaffold, out_cdna, out_prot, out_cdsnucl )
-#
-#    scah = GFF3Parser.create_scaffold_hash( in_scaffold )
-#
-#    h.each_key do |gid|
-#      gffh[gid].each_key do |tid|
-#        next if tid == "gene"
-#        cdnas = GFF3Parsed.new
-#        cdnas.get_tid( tid )
-#
-#        exon_values = gffh[gid][tid]["exon"]
-#        cds_values = gffh[gid][tid]["CDS"]
-#
-#        scaffold_id = gffh[gid][tid]["mRNA"][0][0]
-#        direction   = gffh[gid][tid]["mRNA"][0][6]
-#
-#        exons = GFF3Parser.parse_exon_sites( exon_values ) 
-#        cdss  = GFF3Parser.parse_cds_sites( cds_values ) 
-#
-#        dna_seq = scah[ scaffold_id ]
-#        cdnas.parse_nucl_sequence( dna_seq )
-#        cdnas.parse_cds_sequence( dna_seq )
-#        out_cdna.print cdnas.show_transcript_sequence
-#        out_prot.print cdnas.show_protein_sequence
-#        out_cdsnucl.print cdnas.show_cds_sequence
-#      end
-#    end
-#
-#  end  #  main_parser
+  def main_parser( in_gff, in_scaffold, out_cdna, out_prot, out_cdsnucl )
+
+    scah = GFF3Parser.create_scaffold_hash( in_scaffold )
+
+    h.each_key do |gid|
+      gffh[gid].each_key do |tid|
+        next if tid == "gene"
+        cdnas = GFF3Parsed.new
+        cdnas.get_tid( tid )
+
+        exon_values = gffh[gid][tid]["exon"]
+        cds_values = gffh[gid][tid]["CDS"]
+
+        scaffold_id = gffh[gid][tid]["mRNA"][0][0]
+        direction   = gffh[gid][tid]["mRNA"][0][6]
+
+        exons = GFF3Parser.parse_exon_sites( exon_values ) 
+        cdss  = GFF3Parser.parse_cds_sites( cds_values ) 
+
+        dna_seq = scah[ scaffold_id ]
+        cdnas.parse_nucl_sequence( dna_seq )
+        cdnas.parse_cds_sequence( dna_seq )
+        out_cdna.print cdnas.show_transcript_sequence
+        out_prot.print cdnas.show_protein_sequence
+        out_cdsnucl.print cdnas.show_cds_sequence
+      end
+    end
+
+  end  #  main_parser
 
 end # module GFF3Parser
 
